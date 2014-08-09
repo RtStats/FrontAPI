@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+                           http://www.springframework.org/schema/beans/spring-beans.xsd
+                           http://www.springframework.org/schema/context 
+                           http://www.springframework.org/schema/context/spring-context.xsd">
+
+	<!-- There must be a bean called COUNTER_FACTORY -->
+	<bean id="COUNTER_FACTORY" class="com.github.ddth.tsc.cassandra.CassandraCounterFactory"
+		init-method="init" destroy-method="destroy">
+		<property name="hosts">
+			<array>
+				<value>localhost</value>
+				<value>127.0.0.1</value>
+			</array>
+		</property>
+		<property name="port" value="9042"></property>
+		<property name="keyspace" value="tsc"></property>
+		<property name="tableMetadata" value="tsc_metadata"></property>
+	</bean>
+</beans>

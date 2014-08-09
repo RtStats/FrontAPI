@@ -1,0 +1,17 @@
+<configuration>
+
+    <conversionRule conversionWord="coloredLevel"
+        converterClass="play.api.Logger$ColoredLevel" />
+
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern><![CDATA[%coloredLevel %logger{15} - %message%n%xException{5}]]></pattern>
+            <!-- <pattern><![CDATA[%date - [%level] - %class{}(%file:%line\) / %thread%n%message%n%xException%n]]></pattern> -->
+        </encoder>
+    </appender>
+
+    <root level="DEBUG">
+        <appender-ref ref="CONSOLE" />
+    </root>
+
+</configuration>
