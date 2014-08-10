@@ -7,6 +7,7 @@ import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.context.support.FileSystemXmlApplicationContext;
 
 import play.Logger;
+import bo.IMetadataDao;
 
 import com.github.ddth.tsc.ICounter;
 import com.github.ddth.tsc.ICounterFactory;
@@ -15,6 +16,7 @@ public class Registry {
 
     private static ApplicationContext applicationContext;
     private static ICounterFactory counterFactory;
+    public static IMetadataDao metadataDao;
 
     public static ICounter getCounter(String name) {
         return counterFactory.getCounter(name);
@@ -23,6 +25,7 @@ public class Registry {
     public static void init() {
         initApplicationContext();
         initCounterFactory();
+        initMetadataDao();
     }
 
     public static void destroy() {
@@ -31,6 +34,10 @@ public class Registry {
 
     private static void initCounterFactory() {
         counterFactory = applicationContext.getBean("COUNTER_FACTORY", ICounterFactory.class);
+    }
+
+    private static void initMetadataDao() {
+        metadataDao = applicationContext.getBean("DAO_METADATA", IMetadataDao.class);
     }
 
     private static void initApplicationContext() {

@@ -11,12 +11,27 @@
 		init-method="init" destroy-method="destroy">
 		<property name="hosts">
 			<array>
+				<!-- add/remove host if needed -->
 				<value>localhost</value>
 				<value>127.0.0.1</value>
 			</array>
 		</property>
-		<property name="port" value="9042"></property>
-		<property name="keyspace" value="tsc"></property>
-		<property name="tableMetadata" value="tsc_metadata"></property>
+		<property name="port" value="9042" />
+		<property name="keyspace" value="tsc" />
+		<property name="tableMetadata" value="tsc_metadata" />
+	</bean>
+
+	<!-- There must be a bean called DAO_METADATA -->
+	<bean id="DAO_METADATA" class="bo.CassandraMetadataDao"
+		init-method="init" destroy-method="destroy">
+		<property name="hosts">
+			<array>
+				<!-- add/remove host if needed -->
+				<value>localhost</value>
+				<value>127.0.0.1</value>
+			</array>
+		</property>
+		<property name="port" value="9042" />
+		<property name="keyspace" value="tsc" />
 	</bean>
 </beans>

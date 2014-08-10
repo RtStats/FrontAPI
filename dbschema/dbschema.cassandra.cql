@@ -18,3 +18,19 @@ CREATE TABLE tsc_counter (
     "v"             counter,
     PRIMARY KEY(("c","ym","d"),"t")
 ) WITH COMPACT STORAGE;
+
+-- table to store tag-counters mapping
+CREATE TABLE tsc_tag_counter (
+    "t"             text,
+    "c"             text,
+    "v"             int,
+    PRIMARY KEY ("t", "c")
+) WITH COMPACT STORAGE;
+
+-- table to store "all" stuff (e.g. all existing tags, all existing counters, etc)
+CREATE TABLE tsc_all_list (
+    "n"             text,
+    "k"             text,
+    "v"             int,
+    PRIMARY KEY ("n", "k")
+) WITH COMPACT STORAGE;
