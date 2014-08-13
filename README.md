@@ -3,6 +3,10 @@ FrontAPI
 
 RtStats - FrontAPI: provide APIs to collect counter data.
 
+INSTALLATION
+------------
+See [INSTALL.md](INSTALL.md)
+
 APIs
 ----
 Provided via REST-like form. Data transferred in JSON format.

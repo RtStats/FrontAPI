@@ -84,7 +84,7 @@ usageAndExit() {
     echo "    stop : stop the server"
     echo "    start: start the server"
     echo "       -m: JVM memory limit in mb (default $DEFAULT_APP_MEM)"
-    echo "       -p: Port for web-based status port (default $DEFAULT_APP_PORT)"
+    echo "       -p: Port for HTTP requests (default $DEFAULT_APP_PORT)"
     echo "       -c: Custom configuration file, file is loaded under directory ./conf (default $DEFAULT_APP_CONF)"
     echo
     echo "Example: start server 64mb memory limit, with custom configuration file"
