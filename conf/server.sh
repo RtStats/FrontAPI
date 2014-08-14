@@ -4,9 +4,10 @@
 # Start/Stop script on *NIX #
 # ------------------------- #
 # Command-line arguments:   #
-# -p <port>                 #
-# -m <mem>                  #
-# -c <config_file.conf>     #
+# -p  <port>                #
+# -tp <thrift port>         #
+# -m  <mem>                 #
+# -c  <config_file.conf>    #
 # ------------------------- #
 
 # from http://stackoverflow.com/questions/242538/unix-shell-script-find-out-which-directory-the-script-file-resides
@@ -23,6 +24,7 @@ DEFAULT_APP_MEM=128
 DEFAULT_APP_CONF=application.conf
 
 APP_PORT=$DEFAULT_APP_PORT
+APP_THRIFT_PORT=
 APP_MEM=$DEFAULT_APP_MEM
 APP_CONF=$DEFAULT_APP_CONF
 
@@ -65,7 +67,12 @@ doStart() {
         fi
     fi
     
-    RUN_CMD=($APP_HOME/bin/$APP_NAME -Dapp.home=$APP_HOME -Djava.awt.headless=true -Dconfig.file=$APP_HOME/conf/$APP_CONF -Dlogger.file=$APP_HOME/conf/prod-application-logger.xml -Dhttp.port=$APP_PORT -Dhttp.address=0.0.0.0 -Djava.net.preferIPv4Stack=true -J-server -mem $APP_MEM)
+    RUN_CMD=($APP_HOME/bin/$APP_NAME -Dapp.home=$APP_HOME -Dhttp.port=$APP_PORT -Dhttp.address=0.0.0.0)
+    if [[ $APP_THRIFT_PORT =~ $_number_ ]]; then
+        RUN_CMD+=(-Dthrift.port=$APP_THRIFT_PORT)
+    fi
+    RUN_CMD+=(-Dconfig.file=$APP_HOME/conf/$APP_CONF -Dlogger.file=$APP_HOME/conf/prod-application-logger.xml)
+    RUN_CMD+=(-Djava.awt.headless=true -Djava.net.preferIPv4Stack=true -J-server -mem $APP_MEM)
 
     "${RUN_CMD[@]}" &
     disown $!
@@ -73,19 +80,21 @@ doStart() {
     
     echo "STARTED $APP_NAME `date`"
     
-    echo "APP_MEM : $APP_MEM"
-    echo "APP_PORT: $APP_PORT"
-    echo "APP_CONF: $APP_HOME/conf/$APP_CONF"
-    echo "APP_PID : $APP_PID"
+    echo "APP_MEM        : $APP_MEM"
+    echo "APP_PORT       : $APP_PORT"
+    echo "APP_THRIFT_PORT: $APP_THRIFT_PORT"
+    echo "APP_CONF       : $APP_HOME/conf/$APP_CONF"
+    echo "APP_PID        : $APP_PID"
 }
 
 usageAndExit() {
     echo "Usage: ${0##*/} <{start|stop}> [-m <JVM memory limit in mb>] [-p <web-based status port>] [-c <custom configuration file>]"
     echo "    stop : stop the server"
     echo "    start: start the server"
-    echo "       -m: JVM memory limit in mb (default $DEFAULT_APP_MEM)"
-    echo "       -p: Port for HTTP requests (default $DEFAULT_APP_PORT)"
-    echo "       -c: Custom configuration file, file is loaded under directory ./conf (default $DEFAULT_APP_CONF)"
+    echo "       -m : JVM memory limit in mb (default $DEFAULT_APP_MEM)"
+    echo "       -p : Port for HTTP requests (default $DEFAULT_APP_PORT)"
+    echo "       -tp: Enable Thrift API server on this port"
+    echo "       -c : Custom configuration file, file is loaded under directory ./conf (default $DEFAULT_APP_CONF)"
     echo
     echo "Example: start server 64mb memory limit, with custom configuration file"
     echo "    ${0##*/} start -m 64 -c abc.conf"
@@ -124,7 +133,15 @@ while [ "$1" != "" ]; do
                 usageAndExit
             fi
             ;;
-        
+
+        -tp)
+            APP_THRIFT_PORT=$VALUE
+            if ! [[ $APP_THRIFT_PORT =~ $_number_ ]]; then
+                echo "ERROR: invalid Thrift port number \"$APP_THRIFT_PORT\""
+                usageAndExit
+            fi
+            ;;
+
         -c)
             APP_CONF=$VALUE
             ;;

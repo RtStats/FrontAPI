@@ -6,7 +6,6 @@
                            http://www.springframework.org/schema/context 
                            http://www.springframework.org/schema/context/spring-context.xsd">
 
-	<!-- There must be a bean called COUNTER_FACTORY -->
 	<bean id="COUNTER_FACTORY" class="com.github.ddth.tsc.cassandra.CassandraCounterFactory"
 		init-method="init" destroy-method="destroy">
 		<property name="hosts">
@@ -21,7 +20,6 @@
 		<property name="tableMetadata" value="tsc_metadata" />
 	</bean>
 
-	<!-- There must be a bean called DAO_METADATA -->
 	<bean id="DAO_METADATA" class="bo.CassandraMetadataDao"
 		init-method="init" destroy-method="destroy">
 		<property name="hosts">
@@ -33,5 +31,21 @@
 		</property>
 		<property name="port" value="9042" />
 		<property name="keyspace" value="tsc" />
+	</bean>
+
+	<!-- There must be a bean called API -->
+	<bean id="API" class="api.ApiImpl" init-method="init"
+		destroy-method="destroy">
+		<property name="counterFactory" ref="COUNTER_FACTORY" />
+		<property name="metadataDao" ref="DAO_METADATA" />
+	</bean>
+
+	<!-- Enable thrift server with -Dthrift.port=<port_number> -->
+	<bean id="THRIFT_SERVER" class="global.ThriftApiServer"
+		init-method="start" destroy-method="destroy">
+		<property name="nonBlockingServer" value="true" />
+		<property name="clientTimeoutMillisecs" value="5000" />
+		<property name="maxFrameSize" value="1048576" />
+		<property name="maxReadBufferSize" value="16777216" />
 	</bean>
 </beans>

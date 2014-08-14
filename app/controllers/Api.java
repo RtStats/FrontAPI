@@ -17,7 +17,7 @@ import play.mvc.Result;
 
 import com.github.ddth.commons.utils.DPathUtils;
 import com.github.ddth.commons.utils.SerializationUtils;
-import com.github.ddth.tsc.ICounter;
+import com.github.ddth.plommon.utils.PlayAppUtils;
 
 public class Api extends Controller {
 
@@ -56,6 +56,26 @@ public class Api extends Controller {
     }
 
     /**
+     * No-op
+     * 
+     * @return
+     */
+    public static Result ping() {
+        response().setContentType("application/json");
+        return ok("{\"status\":200,\"message\":\"Ok\"}");
+    }
+
+    /**
+     * Returns API server's version information.
+     * 
+     * @return
+     */
+    public static Result version() {
+        response().setContentType("application/json");
+        return doResponse(200, PlayAppUtils.appConfigString("app.version"));
+    }
+
+    /**
      * Adds value to a counter.
      * 
      * <p>
@@ -85,7 +105,7 @@ public class Api extends Controller {
 
             String counterName = DPathUtils.getValue(params, "c", String.class);
             if (StringUtils.isBlank(counterName)) {
-                return doResponse(400, "Invalid of missing counter name!");
+                return doResponse(400, "Invalid or missing counter name!");
             }
             Long value = DPathUtils.getValue(params, "v", Long.class);
             if (value == null) {
@@ -96,12 +116,11 @@ public class Api extends Controller {
                 timestamp = System.currentTimeMillis();
             }
 
-            ICounter counter = Registry.getCounter(counterName);
-            counter.add(timestamp.longValue(), value.longValue());
-
-            Registry.metadataDao.addCounter(counterName);
-
-            return ok("{\"status\":200,\"message\":\"Ok\"}");
+            if (Registry.api.add(counterName, value.longValue(), timestamp.longValue())) {
+                return ok("{\"status\":200,\"message\":\"Ok\"}");
+            } else {
+                return ok("{\"status\":304,\"message\":\"Counter not exist or not configured!\"}");
+            }
         } catch (Exception e) {
             Logger.error(e.getMessage(), e);
             return doResponse(500, e.getMessage());
@@ -137,23 +156,22 @@ public class Api extends Controller {
 
             String counterName = DPathUtils.getValue(params, "c", String.class);
             if (StringUtils.isBlank(counterName)) {
-                return doResponse(400, "Invalid of missing counter name!");
+                return doResponse(400, "Invalid or missing counter name!");
             }
             Long value = DPathUtils.getValue(params, "v", Long.class);
             if (value == null) {
-                return doResponse(400, "Invalid of missing counter value!");
+                return doResponse(400, "Invalid or missing counter value!");
             }
             Long timestamp = DPathUtils.getValue(params, "t", Long.class);
             if (timestamp == null || timestamp.longValue() < 1) {
                 timestamp = System.currentTimeMillis();
             }
 
-            ICounter counter = Registry.getCounter(counterName);
-            counter.set(timestamp.longValue(), value.longValue());
-
-            Registry.metadataDao.addCounter(counterName);
-
-            return ok("{\"status\":200,\"message\":\"Ok\"}");
+            if (Registry.api.set(counterName, value.longValue(), timestamp.longValue())) {
+                return ok("{\"status\":200,\"message\":\"Ok\"}");
+            } else {
+                return ok("{\"status\":304,\"message\":\"Counter not exist or not configured!\"}");
+            }
         } catch (Exception e) {
             Logger.error(e.getMessage(), e);
             return doResponse(500, e.getMessage());
@@ -188,17 +206,18 @@ public class Api extends Controller {
 
             String counterName = DPathUtils.getValue(params, "c", String.class);
             if (StringUtils.isBlank(counterName)) {
-                return doResponse(400, "Invalid of missing counter name!");
+                return doResponse(400, "Invalid or missing counter name!");
             }
             List<String> tags = DPathUtils.getValue(params, "tags", List.class);
             if (tags == null || tags.size() == 0) {
-                return doResponse(400, "Invalid of missing list of tags!");
+                return doResponse(400, "Invalid or missing list of tags!");
             }
 
-            Registry.metadataDao.tagCounter(counterName,
-                    tags.toArray(ArrayUtils.EMPTY_STRING_ARRAY));
-
-            return ok("{\"status\":200,\"message\":\"Ok\"}");
+            if (Registry.api.tag(counterName, tags.toArray(ArrayUtils.EMPTY_STRING_ARRAY))) {
+                return ok("{\"status\":200,\"message\":\"Ok\"}");
+            } else {
+                return ok("{\"status\":304,\"message\":\"Counter not exist or not configured!\"}");
+            }
         } catch (Exception e) {
             Logger.error(e.getMessage(), e);
             return doResponse(500, e.getMessage());
@@ -233,17 +252,18 @@ public class Api extends Controller {
 
             String counterName = DPathUtils.getValue(params, "c", String.class);
             if (StringUtils.isBlank(counterName)) {
-                return doResponse(400, "Invalid of missing counter name!");
+                return doResponse(400, "Invalid or missing counter name!");
             }
             List<String> tags = DPathUtils.getValue(params, "tags", List.class);
             if (tags == null || tags.size() == 0) {
-                return doResponse(400, "Invalid of missing list of tags!");
+                return doResponse(400, "Invalid or missing list of tags!");
             }
 
-            Registry.metadataDao.untagCounter(counterName,
-                    tags.toArray(ArrayUtils.EMPTY_STRING_ARRAY));
-
-            return ok("{\"status\":200,\"message\":\"Ok\"}");
+            if (Registry.api.untag(counterName, tags.toArray(ArrayUtils.EMPTY_STRING_ARRAY))) {
+                return ok("{\"status\":200,\"message\":\"Ok\"}");
+            } else {
+                return ok("{\"status\":304,\"message\":\"Counter not exist or not configured!\"}");
+            }
         } catch (Exception e) {
             Logger.error(e.getMessage(), e);
             return doResponse(500, e.getMessage());
