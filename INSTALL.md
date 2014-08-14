@@ -35,14 +35,21 @@ $ ./conf/server.sh start [-m <JVM memory limit in mb>] [-p <web-based status por
 
 Parameters:
 ```
--m: JVM memory limit in mb (default 128)
--p: Port for HTTP requests (default 9000)
+-m : JVM memory limit in mb (default 128)
+-p : Port for HTTP requests (default 9000)
+-tp: Enable Thrift API server on this port (default is no Thrift server enabled!)
 ```
 
-Example: start server 64mb memory limit, on port 9001
+Example: start server 64mb memory limit, on port 9001, no Thrift server
 ```
 $ ./conf/server.sh start -m 64 -p 9001
 ```
+
+Example: start server 1024mb memory limit, on port 9002, Thrift server on port 9003
+```
+$ ./conf/server.sh start -m 1024 -p 9002 -tp 9003
+```
+
 
 ** Stop FrontAPI: **
 ```
